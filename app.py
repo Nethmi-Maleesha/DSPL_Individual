@@ -69,57 +69,100 @@ indicator_descriptions = {
 }
 
 # ────────────────────────────────────────────────
-# Section selection
-section = st.sidebar.selectbox("Select Insight Area", list(indicators.keys()))
-indicator_options = indicators[section]
-indicator = st.sidebar.selectbox("Choose an Indicator", sorted(indicator_options))
+# Section and Indicator selection
+section = st.sidebar.selectbox("Select Insight Area", ["Choose an option"] + list(indicators.keys()), index=0)
+indicator = ""
+indicator_options = []
 
-# Filter data
-filtered_df = df[df["Indicator Name"] == indicator].copy()
-filtered_df = filtered_df.sort_values("Year")
+if section != "Choose an option":
+    indicator_options = indicators[section]
+
+indicator = st.sidebar.selectbox("Choose an Indicator", ["Choose an option"] + sorted(indicator_options) if indicator_options else ["Choose an option"], index=0)
 
 # ────────────────────────────────────────────────
-# Title and Description
+# Title and Dashboard Description
 st.title("🇱🇰 Sri Lanka Labor & Social Protection Indicators Dashboard")
 st.markdown("""
 This dashboard presents key indicators related to labor market trends, unemployment, social protection coverage, and poverty reduction in Sri Lanka. Use the filters to explore different dimensions of the data.
 """)
 
-# ────────────────────────────────────────────────
-# Display chart with description
-st.subheader(f"📈 {indicator} Over Time")
-description = indicator_descriptions.get(indicator.strip(), "ℹ️ No description available for this indicator.")
-st.markdown(f"📝 {description}")
+# Show sample visuals only if no selection is made
+if section == "Choose an option" or indicator == "Choose an option":
+    # Group 1: Unemployment & Labor Participation
+    st.markdown("### 👷 Unemployment & Labor Participation")
+    group1_df = df[df["Indicator Name"].isin(indicators["Unemployment & Labor Participation"])]
+    fig1 = px.line(group1_df, x="Year", y="Value", color="Indicator Name", title="Unemployment & Participation Over Time")
+    st.plotly_chart(fig1, use_container_width=True)
 
-if chart_type == "Line Chart":
-    fig = px.line(filtered_df, x="Year", y="Value", markers=True, title=indicator)
+    # Group 2: Employment by Sector
+    st.markdown("### 🏭 Employment by Sector")
+    avg_df = df[df["Indicator Name"].isin(indicators["Employment by Sector"])]
+    avg_df = avg_df.groupby("Indicator Name")["Value"].mean().reset_index()
+    fig_pie = px.pie(avg_df, names="Indicator Name", values="Value", title="Average Employment Share by Sector")
+    st.plotly_chart(fig_pie, use_container_width=True)
+
+    trend_df = df[df["Indicator Name"].isin(indicators["Employment by Sector"])]
+    fig_line = px.line(trend_df, x="Year", y="Value", color="Indicator Name", title="Employment Trends by Sector Over Time")
+    st.plotly_chart(fig_line, use_container_width=True)
+
+    # Group 3: Social Protection Coverage
+    st.markdown("### 🛡️ Social Protection Coverage")
+    group3_df = df[df["Indicator Name"].isin(indicators["Social Protection Coverage"])]
+    fig3 = px.line(group3_df, x="Year", y="Value", color="Indicator Name", title="Social Protection Coverage by Type")
+    st.plotly_chart(fig3, use_container_width=True)
+
+    # Group 4: Poverty Reduction Impact
+    st.markdown("### 📉 Poverty Reduction Impact")
+    group4_df = df[df["Indicator Name"].isin(indicators["Poverty Reduction Impact"])]
+    fig4 = px.line(group4_df, x="Year", y="Value", color="Indicator Name", title="Poverty Impact Indicators")
+    st.plotly_chart(fig4, use_container_width=True)
+
 else:
-    fig = px.bar(filtered_df, x="Year", y="Value", color="Year", title=indicator)
+    # ────────────────────────────────────────────────
+    # Filter data and show user-selected content
+    filtered_df = df[df["Indicator Name"] == indicator].copy()
+    filtered_df = filtered_df.sort_values("Year")
 
-fig.update_layout(title_x=0.5, xaxis_title="Year", yaxis_title="Value")
-st.plotly_chart(fig, use_container_width=True)
+    # Add year range slider after data is filtered
+    years = sorted(filtered_df["Year"].unique())
+    min_year, max_year = int(min(years)), int(max(years))
+    year_range = st.slider("Select Year Range", min_value=min_year, max_value=max_year, value=(min_year, max_year), step=1)
 
-# ────────────────────────────────────────────────
-# Key Stats
-st.markdown("### 📊 Key Statistics")
-col1, col2, col3 = st.columns(3)
-col1.metric("Average", f"{filtered_df['Value'].mean():.2f}")
-col2.metric("Max", f"{filtered_df['Value'].max():.2f}")
-col3.metric("Min", f"{filtered_df['Value'].min():.2f}")
+    # Apply year filter to the data
+    filtered_df = filtered_df[(filtered_df["Year"] >= year_range[0]) & (filtered_df["Year"] <= year_range[1])]
 
-# ────────────────────────────────────────────────
-# Data Table and Download
-st.markdown("### 📋 Data Preview")
-st.dataframe(filtered_df, use_container_width=True)
+    # Chart and Description
+    st.subheader(f"📈 {indicator} Over Time")
+    description = indicator_descriptions.get(indicator.strip(), "ℹ️ No description available for this indicator.")
+    st.markdown(f"📝 {description}")
 
-csv = filtered_df.to_csv(index=False).encode('utf-8')
-st.download_button(
-    label="⬇️ Download CSV",
-    data=csv,
-    file_name=f"{indicator.replace(' ', '_')}_SriLanka.csv",
-    mime='text/csv'
-)
+    if chart_type == "Line Chart":
+        fig = px.line(filtered_df, x="Year", y="Value", markers=True, title=indicator)
+    else:
+        fig = px.bar(filtered_df, x="Year", y="Value", color="Year", title=indicator)
 
-# ────────────────────────────────────────────────
+    fig.update_layout(title_x=0.5, xaxis_title="Year", yaxis_title="Value")
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Key Stats
+    st.markdown("### 📊 Key Statistics")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Average", f"{filtered_df['Value'].mean():.2f}")
+    col2.metric("Max", f"{filtered_df['Value'].max():.2f}")
+    col3.metric("Min", f"{filtered_df['Value'].min():.2f}")
+
+    # Data Table and Download
+    st.markdown("### 📋 Data Preview")
+    st.dataframe(filtered_df, use_container_width=True)
+
+    csv = filtered_df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="⬇️ Download CSV",
+        data=csv,
+        file_name=f"{indicator.replace(' ', '_')}_SriLanka.csv",
+        mime='text/csv'
+    )
+    
 # Footer
 st.caption("📊 Data Source: World Bank via Humanitarian Data Exchange (HDX)")
+
