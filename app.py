@@ -13,7 +13,7 @@ df = pd.read_csv(r"C:\Users\Lenovo\Desktop\Nethmi\Data Science\DSPL_Individual\c
 # ────────────────────────────────────────────────
 # Sidebar filters
 st.sidebar.title("🔍 Filter Options")
-chart_type = st.sidebar.radio("Select Chart Type", ["Line Chart", "Bar Chart"])
+chart_type = st.sidebar.radio("Select Chart Type", ["Line Chart", "Bar Chart", "Scatter Plot", "Box Plot"])
 
 # ────────────────────────────────────────────────
 # Indicator groups
@@ -86,36 +86,48 @@ st.markdown("""
 This dashboard presents key indicators related to labor market trends, unemployment, social protection coverage, and poverty reduction in Sri Lanka. Use the filters to explore different dimensions of the data.
 """)
 
-# Show sample visuals only if no selection is made
+# Show sample visuals in tabs if no selection is made
 if section == "Choose an option" or indicator == "Choose an option":
-    # Group 1: Unemployment & Labor Participation
-    st.markdown("### 👷 Unemployment & Labor Participation")
-    group1_df = df[df["Indicator Name"].isin(indicators["Unemployment & Labor Participation"])]
-    fig1 = px.line(group1_df, x="Year", y="Value", color="Indicator Name", title="Unemployment & Participation Over Time")
-    st.plotly_chart(fig1, use_container_width=True)
+    tab0, tab1, tab2, tab3, tab4 = st.tabs([
+        "📘 About This Dashboard",
+        "👷 Unemployment & Labor Participation",
+        "🏭 Employment by Sector",
+        "🛡️ Social Protection Coverage",
+        "📉 Poverty Reduction Impact"
+    ])
 
-    # Group 2: Employment by Sector
-    st.markdown("### 🏭 Employment by Sector")
-    avg_df = df[df["Indicator Name"].isin(indicators["Employment by Sector"])]
-    avg_df = avg_df.groupby("Indicator Name")["Value"].mean().reset_index()
-    fig_pie = px.pie(avg_df, names="Indicator Name", values="Value", title="Average Employment Share by Sector")
-    st.plotly_chart(fig_pie, use_container_width=True)
+    with tab0:
+        st.markdown("""
+        ### 📘 About This Dashboard
+        This interactive dashboard presents trends in Sri Lanka's labor market and social protection system using World Bank data.  
+        Explore indicators for unemployment, employment sectors, safety net coverage, and poverty impact.  
+        Use the sidebar to filter by indicator and visualize trends with multiple chart types.
+        """)
 
-    trend_df = df[df["Indicator Name"].isin(indicators["Employment by Sector"])]
-    fig_line = px.line(trend_df, x="Year", y="Value", color="Indicator Name", title="Employment Trends by Sector Over Time")
-    st.plotly_chart(fig_line, use_container_width=True)
+    with tab1:
+        group1_df = df[df["Indicator Name"].isin(indicators["Unemployment & Labor Participation"])]
+        fig1 = px.line(group1_df, x="Year", y="Value", color="Indicator Name", title="Unemployment & Participation Over Time")
+        st.plotly_chart(fig1, use_container_width=True)
 
-    # Group 3: Social Protection Coverage
-    st.markdown("### 🛡️ Social Protection Coverage")
-    group3_df = df[df["Indicator Name"].isin(indicators["Social Protection Coverage"])]
-    fig3 = px.line(group3_df, x="Year", y="Value", color="Indicator Name", title="Social Protection Coverage by Type")
-    st.plotly_chart(fig3, use_container_width=True)
+    with tab2:
+        avg_df = df[df["Indicator Name"].isin(indicators["Employment by Sector"])]
+        avg_df = avg_df.groupby("Indicator Name")["Value"].mean().reset_index()
+        fig_pie = px.pie(avg_df, names="Indicator Name", values="Value", title="Average Employment Share by Sector")
+        st.plotly_chart(fig_pie, use_container_width=True)
 
-    # Group 4: Poverty Reduction Impact
-    st.markdown("### 📉 Poverty Reduction Impact")
-    group4_df = df[df["Indicator Name"].isin(indicators["Poverty Reduction Impact"])]
-    fig4 = px.line(group4_df, x="Year", y="Value", color="Indicator Name", title="Poverty Impact Indicators")
-    st.plotly_chart(fig4, use_container_width=True)
+        trend_df = df[df["Indicator Name"].isin(indicators["Employment by Sector"])]
+        fig_line = px.line(trend_df, x="Year", y="Value", color="Indicator Name", title="Employment Trends by Sector Over Time")
+        st.plotly_chart(fig_line, use_container_width=True)
+
+    with tab3:
+        group3_df = df[df["Indicator Name"].isin(indicators["Social Protection Coverage"])]
+        fig3 = px.line(group3_df, x="Year", y="Value", color="Indicator Name", title="Social Protection Coverage by Type")
+        st.plotly_chart(fig3, use_container_width=True)
+
+    with tab4:
+        group4_df = df[df["Indicator Name"].isin(indicators["Poverty Reduction Impact"])]
+        fig4 = px.line(group4_df, x="Year", y="Value", color="Indicator Name", title="Poverty Impact Indicators")
+        st.plotly_chart(fig4, use_container_width=True)
 
 else:
     # ────────────────────────────────────────────────
@@ -138,10 +150,16 @@ else:
 
     if chart_type == "Line Chart":
         fig = px.line(filtered_df, x="Year", y="Value", markers=True, title=indicator)
-    else:
+    elif chart_type == "Bar Chart":
         fig = px.bar(filtered_df, x="Year", y="Value", color="Year", title=indicator)
+    elif chart_type == "Scatter Plot":
+        fig = px.scatter(filtered_df, x="Year", y="Value", title=indicator)
+    elif chart_type == "Box Plot":
+        fig = px.box(filtered_df, y="Value", points="all", title=f"Distribution of {indicator} (All Years)")
+    else:
+        fig = px.line(filtered_df, x="Year", y="Value", title=indicator)
 
-    fig.update_layout(title_x=0.5, xaxis_title="Year", yaxis_title="Value")
+    fig.update_layout(title_x=0.5, xaxis_title="Year" if chart_type != "Box Plot" else None, yaxis_title="Value")
     st.plotly_chart(fig, use_container_width=True)
 
     # Key Stats
@@ -162,7 +180,9 @@ else:
         file_name=f"{indicator.replace(' ', '_')}_SriLanka.csv",
         mime='text/csv'
     )
-    
+
 # Footer
 st.caption("📊 Data Source: World Bank via Humanitarian Data Exchange (HDX)")
+
+
 
