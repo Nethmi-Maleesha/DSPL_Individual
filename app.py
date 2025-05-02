@@ -2,20 +2,20 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# ────────────────────────────────────────────────
+
 # Page configuration
 st.set_page_config(page_title="Sri Lanka Labor & Social Protection Dashboard", layout="centered")
 
-# ────────────────────────────────────────────────
+
 # Load the cleaned data
 df = pd.read_csv(r"C:\Users\Lenovo\Desktop\Nethmi\Data Science\DSPL_Individual\cleaned_data.csv")
 
-# ────────────────────────────────────────────────
+
 # Sidebar filters
 st.sidebar.title("🔍 Filter Options")
 chart_type = st.sidebar.radio("Select Chart Type", ["Line Chart", "Bar Chart", "Scatter Plot", "Box Plot"])
 
-# ────────────────────────────────────────────────
+
 # Indicator groups
 indicators = {
     "Unemployment & Labor Participation": [
@@ -68,7 +68,7 @@ indicator_descriptions = {
         "This shows how much social protection programs reduce income inequality, using the Gini index."
 }
 
-# ────────────────────────────────────────────────
+
 # Section and Indicator selection
 section = st.sidebar.selectbox("Select Insight Area", ["Choose an option"] + list(indicators.keys()), index=0)
 indicator = ""
@@ -79,7 +79,7 @@ if section != "Choose an option":
 
 indicator = st.sidebar.selectbox("Choose an Indicator", ["Choose an option"] + sorted(indicator_options) if indicator_options else ["Choose an option"], index=0)
 
-# ────────────────────────────────────────────────
+
 # Title and Dashboard Description
 st.title("🇱🇰 Sri Lanka Labor & Social Protection Indicators Dashboard")
 st.markdown("""
@@ -99,9 +99,19 @@ if section == "Choose an option" or indicator == "Choose an option":
     with tab0:
         st.markdown("""
         ### 📘 About This Dashboard
-        This interactive dashboard presents trends in Sri Lanka's labor market and social protection system using World Bank data.  
-        Explore indicators for unemployment, employment sectors, safety net coverage, and poverty impact.  
-        Use the sidebar to filter by indicator and visualize trends with multiple chart types.
+
+        This dashboard was developed to provide policymakers, researchers, and students with an interactive way to explore Sri Lanka’s labor market and social protection landscape using curated indicators from the World Bank.
+
+        It organizes the data into four key areas:
+
+        - 👷 Unemployment & Labor Participation  
+        - 🏭 Employment by Sector  
+        - 🛡️ Social Protection Coverage  
+        - 📉 Poverty Reduction Impact  
+
+        Users can filter by theme, choose specific indicators, adjust year ranges, and select chart types (line, bar, scatter, box) to gain insights into how Sri Lanka’s workforce and welfare policies have evolved over time.
+
+        📊 The dashboard also provides key summary statistics and the ability to download filtered data for further analysis.
         """)
 
     with tab1:
@@ -130,7 +140,7 @@ if section == "Choose an option" or indicator == "Choose an option":
         st.plotly_chart(fig4, use_container_width=True)
 
 else:
-    # ────────────────────────────────────────────────
+    
     # Filter data and show user-selected content
     filtered_df = df[df["Indicator Name"] == indicator].copy()
     filtered_df = filtered_df.sort_values("Year")
@@ -183,6 +193,9 @@ else:
 
 # Footer
 st.caption("📊 Data Source: World Bank via Humanitarian Data Exchange (HDX)")
+
+
+
 
 
 
