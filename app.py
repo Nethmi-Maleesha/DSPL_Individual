@@ -8,7 +8,7 @@ st.set_page_config(page_title="Sri Lanka Labor & Social Protection Dashboard", l
 
 
 # Load the cleaned data
-df = pd.read_csv(r"C:\Users\Lenovo\Desktop\Nethmi\Data Science\DSPL_Individual\cleaned_data.csv")
+df = pd.read_csv("cleaned_data.csv")
 
 
 # Sidebar filters
