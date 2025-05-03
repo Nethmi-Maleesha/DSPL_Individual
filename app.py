@@ -113,6 +113,14 @@ if section == "Choose an option" or indicator == "Choose an option":
 
         📊 The dashboard also provides key summary statistics and the ability to download filtered data for further analysis.
         """)
+        with st.expander("📊 Summary Insights"):
+            st.markdown("""
+            **Key Observations from the Data:**  
+            - 📈 The labor force participation rate has remained above 50% since 2000, but unemployment continues to fluctuate.  
+            - 🏭 Employment has gradually shifted from agriculture to services, showing signs of structural transformation.  
+            - 🛡️ Social protection coverage is consistently higher in urban areas than rural, reflecting unequal program reach.  
+            - 📉 Social protection programs have had measurable effects on reducing poverty headcounts and income inequality.  
+            """)
 
     with tab1:
         group1_df = df[df["Indicator Name"].isin(indicators["Unemployment & Labor Participation"])]
@@ -134,6 +142,22 @@ if section == "Choose an option" or indicator == "Choose an option":
         fig3 = px.line(group3_df, x="Year", y="Value", color="Indicator Name", title="Social Protection Coverage by Type")
         st.plotly_chart(fig3, use_container_width=True)
 
+        # Urban vs Rural Comparison Chart
+        urban_rural_df = df[df["Indicator Name"].isin([
+            "Coverage (%) -All Social Protection and Labor -rural",
+            "Coverage (%) -All Social Protection and Labor -urban"
+        ])]
+
+        fig_compare = px.bar(
+            urban_rural_df,
+            x="Year",
+            y="Value",
+            color="Indicator Name",
+            barmode="group",
+            title="Urban vs Rural Social Protection Coverage"
+        )
+        st.plotly_chart(fig_compare, use_container_width=True)
+        
     with tab4:
         group4_df = df[df["Indicator Name"].isin(indicators["Poverty Reduction Impact"])]
         fig4 = px.line(group4_df, x="Year", y="Value", color="Indicator Name", title="Poverty Impact Indicators")
