@@ -216,7 +216,8 @@ else:
     )
 
 # Footer
-st.caption("📊 Data Source: World Bank via Humanitarian Data Exchange (HDX)")
+st.caption("📊 Data Source: World Bank via Humanitarian Data Exchange (HDX)  |  Developed for the Data Science Project Life Cycle module  |  University of Westminster")
+
 
 
 
