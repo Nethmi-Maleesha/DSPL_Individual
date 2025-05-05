@@ -118,7 +118,7 @@ if section == "Choose an option" or indicator == "Choose an option":
             **Key Observations from the Data:**  
             - 📈 The labor force participation rate has remained above 50% since 2000, but unemployment continues to fluctuate.  
             - 🏭 Employment has gradually shifted from agriculture to services, showing signs of structural transformation.  
-            - 🛡️ Social protection coverage is consistently higher in urban areas than rural, reflecting unequal program reach.  
+            - 🛡️ Social protection coverage is consistently higher in rural areas than in urban areas, suggesting targeted support towards rural populations or disparities in reporting and access mechanisms.  
             - 📉 Social protection programs have had measurable effects on reducing poverty headcounts and income inequality.  
             """)
 
